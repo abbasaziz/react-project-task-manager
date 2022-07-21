@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "text": "paapi",
+      "day": "SADASDA",
+      "reminder": false,
+      "id": 1
+    },
+    {
+      "text": "grocery",
+      "day": "friady",
+      "reminder": true,
+      "id": 2
+    },
+    {
+      "text": "Eat",
+      "day": "monday",
+      "reminder": true,
+      "id": 3
+    },
+    {
+      "text": "Kop",
+      "day": "Everyday",
+      "reminder": true,
+      "id": 4
+    }
+  ]
+}

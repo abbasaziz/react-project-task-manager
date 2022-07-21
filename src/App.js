@@ -1,40 +1,84 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header'
 import Tasks from './components/Tasks'
 import AddTask from './components/AddTask'
 
 
 function App() {
+  const [showAddTask, setShowAddTask] = useState (false)
+  const [tasks, setTasks]= useState([]) 
 
-  const [tasks, setTasks]= useState([
-    {
-        id:1,
-        text: 'Doctors Appointment',
-        day: 'July 25 at 3:40pm',
-        reminder: true,
-    },
-    {
-        id:2,
-        text: 'Grocery',
-        day: 'July 26 at 1:40pm',
-        reminder: true,
-    },
-    {
-        id:3,
-        text: 'Gym',
-        day: 'July 26 at 6:40am',
-        reminder: false,
-    },
+  useEffect(() => {
+    const getTasks = async () => {
+      const tasksFromServer = await fetchTasks()
+      setTasks(tasksFromServer)
+    }
+    getTasks()
+  }, [])
 
-  ]) 
+
+
+  // fetch data from json server or any other backend
+  const fetchTasks = async () => {
+    const res = await fetch('http://localhost:5000/tasks')
+    const data = await res.json()
+
+    return data 
+  }
+
+  // fetch reminder data from json server or any other backend
+  const fetchTask = async (id) => {
+    const res = await fetch(`http://localhost:5000/tasks/${id}`)
+    const data = await res.json()
+
+    return data 
+  }
+  
+  // submission or add task
+  const addTask = async (task) => {
+    const res =await fetch('http://localhost:5000/tasks',{
+      method: 'POST',
+      headers: {'Content-type': 'application/json'},
+      body: JSON.stringify(task) 
+    })
+
+    const data = await res.json ()
+    setTasks([...tasks, data])
+
+    
+    
+    // const id = Math.floor(Math.random() * 10000) + 1
+    // const newTask = { id, ...task }
+    // setTasks([...tasks, newTask])
+  }
+  
 
   // delete task
 
-  const deleteTask = (id) => {
-  setTasks(tasks.filter((task) => task.id !== id))
+  const deleteTask = async (id) => {
+    await fetch (`http://localhost:5000/tasks/${id}`,{
+      method: 'DELETE',
+    })
+
+    setTasks(tasks.filter((task) => task.id !== id))
   }
+
   // toggle swap reminder
-  const toggleReminder = (id) => {
+  const toggleReminder = async (id) => {
+    const taskToToggle = await fetchTask(id)
+    const updTask = { ...taskToToggle, reminder: !taskToToggle.reminder }
+
+    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(updTask)
+    })
+
+    const data = await res.json()
+
+
     setTasks(tasks.map((task) => task.id === id ? {...task, reminder: !task.reminder} : task))
   }
 
@@ -42,8 +86,8 @@ function App() {
 
   return (
     <div className="container">
-    <Header  />
-    <AddTask />
+    <Header onAdd = {() => setShowAddTask(!showAddTask)} showAdd={showAddTask} />
+    {showAddTask && <AddTask onAdd = {addTask} />}
     {tasks.length>0 ? (     
       <Tasks tasks = {tasks} onDelete={deleteTask} onToggle = {toggleReminder} />) : ( 'No tasks pending'
     )}
