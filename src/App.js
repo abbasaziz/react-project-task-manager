@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from './components/Header'
 import Tasks from './components/Tasks'
+import AddTask from './components/AddTask'
 
 
 function App() {
@@ -25,12 +26,28 @@ function App() {
         reminder: false,
     },
 
-]) 
+  ]) 
+
+  // delete task
+
+  const deleteTask = (id) => {
+  setTasks(tasks.filter((task) => task.id !== id))
+  }
+  // toggle swap reminder
+  const toggleReminder = (id) => {
+    setTasks(tasks.map((task) => task.id === id ? {...task, reminder: !task.reminder} : task))
+  }
+
+
 
   return (
     <div className="container">
-      <Header  />
-      <Tasks tasks = {tasks} />
+    <Header  />
+    <AddTask />
+    {tasks.length>0 ? (     
+      <Tasks tasks = {tasks} onDelete={deleteTask} onToggle = {toggleReminder} />) : ( 'No tasks pending'
+    )}
+    
     </div>
     
   );
